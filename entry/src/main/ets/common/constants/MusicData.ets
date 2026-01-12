@@ -1,4 +1,4 @@
-import { MusicModel } from "../model/MusicModel";
+import { MusicModel } from '../model/MusicModel';
 
 export class MusicData {
   public static readonly MUSIC_LIST: MusicModel[] = [

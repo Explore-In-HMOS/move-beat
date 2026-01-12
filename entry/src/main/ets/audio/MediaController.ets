@@ -57,10 +57,6 @@ export class MediaController {
       return;
     }
 
-    // audioManager.getVolumeManager().getVolumeGroupManager(LOCAL_VOLUME_GROUP_ID)
-
-    // audio.DEFAULT_VOLUME_GROUP_ID
-
     player.on('error', this.errorCallback);
     player.on('stateChange', this.stateChangeCallback);
     player.on('timeUpdate', this.timeUpdateCallback);
@@ -71,7 +67,7 @@ export class MediaController {
 
   private errorCallback: (err: BusinessError) => void = (err: BusinessError) => {
     hilog.error(audioDomain, audioPrefix, `Invoke avPlayer failed, code is ${err.code}, message is ${err.message}`);
-    this.player?.reset(); // reset the AVPlayer, which enters the idle state.
+    this.player?.reset();
   }
   private stateChangeCallback: (state: string, reason: media.StateChangeReason) => void =
     async (state: string, _reason: media.StateChangeReason) => {
@@ -233,7 +229,7 @@ export class MediaController {
    * Play next music.
    */
   public async playNext() {
-    hilog.info(audioDomain, audioPrefix, 'playNext Index:' + this.musicIndex + ', length-1:' + (this.musicList.length - 1));
+    hilog.info(audioDomain, audioPrefix, `playNext Index: ${this.musicIndex}, length-1: ${this.musicList.length - 1}`);
     if (!this.player) {
       hilog.error(audioDomain, audioPrefix, 'player is undefined playNext');
       return;
@@ -243,7 +239,6 @@ export class MediaController {
 
     const active: number[] | undefined = AppStorage.get<number[]>('activeIndices');
     if (active !== undefined && active.length > 0) {
-      // find current position in filtered list
       let pos: number = -1;
       for (let i = 0; i < active.length; i++) {
         if (active[i] === this.musicIndex) {
@@ -256,7 +251,6 @@ export class MediaController {
       return;
     }
 
-    // fallback: whole list
     if (this.musicIndex + 1 < this.musicList.length) {
       this.startByIndex(this.musicIndex + 1);
     } else {
@@ -268,7 +262,7 @@ export class MediaController {
    * Play previous music.
    */
   public async playPrevious() {
-    hilog.info(audioDomain, audioPrefix, 'playPrevious Index:' + this.musicIndex + ', length-1:' + (this.musicList.length - 1));
+    hilog.info(audioDomain, audioPrefix, `playPrevious Index: ${this.musicIndex}, length-1: ${this.musicList.length - 1}`);
     if (!this.player) {
       hilog.error(audioDomain, audioPrefix, 'audioRenderer is undefined playPrevious');
       return;
@@ -290,7 +284,6 @@ export class MediaController {
       return;
     }
 
-    // fallback: whole list
     if (this.musicIndex - 1 >= 0) {
       this.startByIndex(this.musicIndex - 1);
     } else {
@@ -298,14 +291,9 @@ export class MediaController {
     }
   }
 
-  /**
-   * Start music by index.
-   *
-   * @param musicIndex
-   */
   public async startByIndex(musicIndex: number = this.musicIndex) {
     if (musicIndex >= this.musicList.length) {
-      hilog.error(audioDomain, audioPrefix, `current musicIndex ${musicIndex}`);
+      hilog.info(audioDomain, audioPrefix, `playNext Index: ${this.musicIndex}, length-1: ${this.musicList.length - 1}`);
       return;
     }
 
@@ -329,9 +317,6 @@ export class MediaController {
     }
   }
 
-  /**
-   * load song file music.
-   */
   private async loadSongUrl() {
     if (!this.player || !this.context) {
       return;
@@ -348,9 +333,6 @@ export class MediaController {
     }
   }
 
-  /**
-   * Stop music
-   */
   public async stop() {
     if (this.player) {
       try {
@@ -373,7 +355,7 @@ export class MediaController {
   }
 
   private updateMusicIndex(musicIndex: number) {
-    hilog.info(audioDomain, audioPrefix, 'updateMusicIndex ===> ' + musicIndex);
+    hilog.info(audioDomain, audioPrefix, `updateMusicIndex ===> ${musicIndex}`);
     AppStorage.setOrCreate('selectIndex', musicIndex);
     if (this.musicIndex !== musicIndex) {
       this.musicIndex = musicIndex;
@@ -381,12 +363,9 @@ export class MediaController {
     if (!this.avSessionController) {
       return;
     }
-    hilog.info(audioDomain, audioPrefix, 'this.session !== undefined ');
+    hilog.info(audioDomain, audioPrefix, 'this.session !== undefined');
   }
 
-  /**
-   * release audioRenderer
-   */
   public async release() {
     if (this.player && this.context) {
       try {

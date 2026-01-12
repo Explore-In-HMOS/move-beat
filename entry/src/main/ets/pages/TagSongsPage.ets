@@ -8,7 +8,7 @@ export function TagSongsPageBuilder() {
 
 @Entry
 @Component
-export struct TagSongsPage {
+struct TagSongsPage {
   @State songs: MusicModel[] = []
   private pathStack: NavPathStack = new NavPathStack()
 
@@ -23,15 +23,19 @@ export struct TagSongsPage {
     return ['None', 'Walking', 'Running', 'Stationary']
   }
 
-  // Current tag -> picker index
   private indexOf(song: MusicModel): number {
-    if (song.activityTag === undefined) return 0
-    if (song.activityTag === ActivityType.WALKING) return 1
-    if (song.activityTag === ActivityType.RUNNING) return 2
+    if (song.activityTag === undefined) {
+      return 0
+    }
+    if (song.activityTag === ActivityType.WALKING) {
+      return 1
+    }
+    if (song.activityTag === ActivityType.RUNNING) {
+      return 2
+    }
     return 3
   }
 
-  // Apply picker index -> tag
   private apply(songIdx: number, pickerIdx: number): void {
     if (pickerIdx === 0) {
       this.songs[songIdx].activityTag = undefined
@@ -48,18 +52,16 @@ export struct TagSongsPage {
   build() {
     NavDestination() {
       Column() {
-        // Header (tap to go back)
         Text('Tag Songs')
           .fontSize(16)
           .fontWeight(FontWeight.Bold)
           .margin(6)
           .onClick(() => this.pathStack.pop())
 
-        // List with large pickers for watch UX
         List() {
           ForEach(
             this.songs,
-            (song: MusicModel, idx: number) => {
+            (song: MusicModel) => {
               ListItem() {
                 Column() {
                   Text(song.title)
@@ -73,25 +75,29 @@ export struct TagSongsPage {
                     selected: this.indexOf(song)
                   })
                     .onChange((value: string | string[], index: number | number[]) => {
-                      const i: number = typeof index === 'number' ? index : (index.length > 0 ? index[0] : 0)
-                      this.apply(idx, i)
+                      const i: number = Array.isArray(index)
+                        ? index.length > 0
+                          ? index[0]
+                          : 0
+                        : index;
+                      this.apply(song.id, i);
                     })
                     .margin(2)
                 }
-                .padding(8)
+                .padding(8);
               }
             },
-            (_: MusicModel, i: number): string => `${i}` // explicit types avoid any/unknown
+            (song: MusicModel): string => song.id.toString()
           )
         }
         .layoutWeight(1)
       }
-      .padding(10)   // safe padding for round watch faces
+      .padding(10)
       .height('100%')
       .width('100%')
     }
     .onReady((context: NavDestinationContext) => {
-      this.pathStack = context.pathStack
+      this.pathStack = context.pathStack;
     })
   }
 }

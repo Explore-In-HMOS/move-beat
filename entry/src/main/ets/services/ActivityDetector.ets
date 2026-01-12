@@ -11,7 +11,6 @@ export class ActivityDetector {
   private lastStepCount: number = 0;
   private isRunning: boolean = false;
 
-  // allow mock mode (true for dev)
   private useMock: boolean;
   private mockTicker?: number;
 
@@ -61,7 +60,7 @@ export class ActivityDetector {
     try {
       sensor.on(sensor.SensorId.PEDOMETER, (data: sensor.PedometerResponse) => {
         this.stepCount = data.steps;
-      }, { interval: 1000000000 }); // 1s in ns
+      }, { interval: 1000000000 });
     } catch (error) {
       console.error('Pedometer init failed:', error);
       throw new Error(String(error));
@@ -79,7 +78,7 @@ export class ActivityDetector {
   private startPeriodicDetection(): void {
     this.detectionInterval = setInterval((): void => {
       this.detectActivity();
-    }, 60000); // every 60s
+    }, 60000);
   }
 
   private detectActivity(): void {
@@ -92,7 +91,7 @@ export class ActivityDetector {
     if (newType !== this.currentActivity.type) {
       this.currentActivity = new Activity(newType);
       this.notifyListeners(this.currentActivity);
-      console.info('[ActivityDetector] change -> ' + newType + ' spm=' + stepsPerMinute);
+      console.info(`[ActivityDetector] change -> ${newType} spm=${stepsPerMinute}`);
     }
   }
 
@@ -106,14 +105,13 @@ export class ActivityDetector {
     return ActivityType.RUNNING;
   }
 
-  // Simple mock: fire immediately then alternate every 10s
   private startMock(): void {
     const seq: ActivityType[] = [ActivityType.WALKING, ActivityType.RUNNING, ActivityType.WALKING];
     let i: number = 0;
 
     this.currentActivity = new Activity(seq[i]);
     this.notifyListeners(this.currentActivity);
-    console.info('[ActivityDetector(Mock)] immediate -> ' + seq[i]);
+    console.info(`[ActivityDetector(Mock)] immediate -> ${seq[i]}`);
     i = (i + 1) % seq.length;
 
     this.mockTicker = setInterval((): void => {
@@ -122,7 +120,7 @@ export class ActivityDetector {
       if (next !== this.currentActivity.type) {
         this.currentActivity = new Activity(next);
         this.notifyListeners(this.currentActivity);
-        console.info('[ActivityDetector(Mock)] -> ' + next);
+        console.info(`[ActivityDetector(Mock)] -> ${next}`);
       }
     }, 10000);
   }

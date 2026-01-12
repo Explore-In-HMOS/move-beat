@@ -8,9 +8,9 @@ import { TagSongsPageBuilder } from './TagSongsPage'
 
 @Entry
 @Component
-export struct Index {
+struct Index {
   private viewModel: MainViewModel = new MainViewModel()
-  @State musicData: MusicModel[] = []
+  musicData: MusicModel[] = []
   pathStack: NavPathStack = new NavPathStack()
 
   aboutToAppear(): void {
@@ -25,9 +25,15 @@ export struct Index {
     const runningSongs: MusicModel[] = []
     const stationarySongs: MusicModel[] = []
     for (let s of this.musicData) {
-      if (s.activityTag === ActivityType.WALKING) walkingSongs.push(s)
-      else if (s.activityTag === ActivityType.RUNNING) runningSongs.push(s)
-      else stationarySongs.push(s)
+      if (s.activityTag === ActivityType.WALKING) {
+        walkingSongs.push(s)
+      }
+      else if (s.activityTag === ActivityType.RUNNING) {
+        runningSongs.push(s)
+      }
+      else {
+        stationarySongs.push(s)
+      }
     }
     activityManager.setActivitySongs(ActivityType.WALKING, walkingSongs)
     activityManager.setActivitySongs(ActivityType.RUNNING, runningSongs)

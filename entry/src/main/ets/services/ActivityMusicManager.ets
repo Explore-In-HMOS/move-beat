@@ -2,6 +2,7 @@ import { ActivityDetector } from './ActivityDetector';
 import { Activity, ActivityType } from '../common/model/Activity';
 import { MediaController } from '../audio/MediaController';
 import { MusicModel } from '../common/model/MusicModel';
+import { cryptoFramework } from '@kit.CryptoArchitectureKit';
 
 export class ActivityMusicManager {
   private static instance: ActivityMusicManager | undefined;
@@ -44,13 +45,17 @@ export class ActivityMusicManager {
     }
 
     const allowed: number[] = [];
+    const stationary = ActivityType.STATIONARY;
+    const walking = ActivityType.WALKING;
+    const running = ActivityType.RUNNING;
+
     for (let i = 0; i < allSongs.length; i++) {
       const tag = allSongs[i].activityTag;
-      if (activity === ActivityType.STATIONARY && tag === ActivityType.STATIONARY) {
+      if (activity === stationary && tag === stationary) {
         allowed.push(i);
-      } else if (activity === ActivityType.WALKING && tag === ActivityType.WALKING) {
+      } else if (activity === walking && tag === walking) {
         allowed.push(i);
-      } else if (activity === ActivityType.RUNNING && tag === ActivityType.RUNNING) {
+      } else if (activity === running && tag === running) {
         allowed.push(i);
       }
     }
@@ -58,12 +63,18 @@ export class ActivityMusicManager {
     AppStorage.setOrCreate('activeIndices', allowed);
   }
 
-  private onActivityChange(activity: Activity): void {
+  private async generateSecureRandom(max: number): Promise<number> {
+    const rand = cryptoFramework.createRandom();
+    const len = 4;
+    const randomBytes = await rand.generateRandom(len);
+    const randomValue = new DataView(randomBytes.data.buffer).getUint32(0, true);
+    return randomValue % max;
+  }
+
+  private async onActivityChange(activity: Activity): Promise<void> {
     this.currentActivity = activity.type;
-    // expose activity to UI (chip)
     AppStorage.setOrCreate('currentActivity', activity.type);
 
-    // build filtered playlist
     this.rebuildActiveIndices(activity.type);
 
     const allowed: number[] | undefined = AppStorage.get<number[]>('activeIndices');
@@ -72,12 +83,10 @@ export class ActivityMusicManager {
       return;
     }
 
-    // nothing tagged for this activity -> do not change track
     if (allowed.length === 0) {
       return;
     }
 
-    // if current selection isn’t allowed, jump to a random allowed one
     const currentIdx: number | undefined = AppStorage.get<number>('selectIndex');
     let currentAllowed = false;
     if (currentIdx !== undefined) {
@@ -90,7 +99,7 @@ export class ActivityMusicManager {
     }
 
     if (!currentAllowed) {
-      const pick: number = Math.floor(Math.random() * allowed.length);
+      const pick: number = await this.generateSecureRandom(allowed.length);
       const nextGlobalIndex: number = allowed[pick];
       MediaController.getInstance().startByIndex(nextGlobalIndex);
     }

@@ -20,17 +20,15 @@ export struct PlaybackPage {
   @StorageLink('currentActivity') currentActivity: number = ActivityType.STATIONARY;
 
   @State cumulativeDegree: number = 0;
-  @State threshold: number = 10;
-  @State progressValue: number = 0;
-  @State totalValue: number = 0;
-  @State minValue: number = 0;
+  threshold: number = 10;
 
-  // Small helpers for the activity chip
+
   private activityEmoji(): string {
     if (this.currentActivity === ActivityType.WALKING) { return '🚶'; }
     if (this.currentActivity === ActivityType.RUNNING) { return '🏃'; }
     return '🧘';
   }
+
   private activityLabel(): string {
     if (this.currentActivity === ActivityType.WALKING) { return 'Walking'; }
     if (this.currentActivity === ActivityType.RUNNING) { return 'Running'; }
@@ -39,7 +37,6 @@ export struct PlaybackPage {
 
   build() {
     Column() {
-      // Time + title/artist + activity chip
       Column() {
         Text(this.currentTime)
           .fontColor($r('app.color.color_text_secondary'))
@@ -58,9 +55,8 @@ export struct PlaybackPage {
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
 
-        // Activity chip
         Row() {
-          Text(this.activityEmoji() + ' ' + this.activityLabel())
+          Text(`${this.activityEmoji()} ${this.activityLabel()}`)
             .fontSize(12)
             .fontColor($r('app.color.color_text_primary'))
             .margin(4)
@@ -90,7 +86,7 @@ export struct PlaybackPage {
           .width(68)
           .height(68)
           .onClick(() => {
-            hilog.error(0xFF00, 'MusicPlay', 'toggle play/pause ' + this.isPlay);
+            hilog.error(0xFF00, 'MusicPlay', `toggle play/pause ${this.isPlay}`);
             if (this.isPlay) {
               MediaController.getInstance().pause();
             } else {

@@ -1,10 +1,6 @@
 {
   "string": [
     {
-      "name": "app_name",
-      "value": "CrownMusicSample"
-    },
-    {
       "name": "MoveBeatLabel",
       "value": "MoveBeat sample app"
     }
