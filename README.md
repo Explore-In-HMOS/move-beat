@@ -7,7 +7,7 @@ It automatically changes your playlist based on your physical activity — walki
 
 # Preview
 
-<p align="center">
+<p>
   <img src="screenshots/output1.png" alt="Playback Screen" width="24%" />
   <img src="screenshots/output2.png" alt="Tag Songs Screen" width="24%" />
 </p>
